@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>أناقة | Anaqah - متجر الأزياء العصرية</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: { 50:'#FAF8F5',100:'#F4EFE6',200:'#E7DEC9',300:'#D5C7A5' },
+            olive: { 50:'#F4F6F3',100:'#E3E9E0',500:'#52664A',600:'#3F4E38',700:'#2F3C29',800:'#222B1D',900:'#171D14' },
+            accent: { gold:'#C5A059' }
+          },
+          fontFamily: { sans: ['Cairo','sans-serif'] }
+        }
+      }
+    }
+    </script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body{font-family:'Cairo',sans-serif;background:#FAF8F5;color:#2F3C29;scroll-behavior:smooth}
+        .no-scrollbar::-webkit-scrollbar{display:none}
+        .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+        .slide-transition{transition:transform .5s ease-in-out}
+        .page-view{display:none}
+        .page-view.active{display:block}
+        .slider-track{scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+        .slider-track>*{scroll-snap-align:start}
+        @keyframes slideIn{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+        @keyframes fadeOut{from{opacity:1}to{opacity:0}}
+        .toast-enter{animation:slideIn .3s ease-out forwards}
+        .toast-exit{animation:fadeOut .3s ease-out forwards}
+    </style>
+</head>
+<body class="antialiased selection:bg-olive-600 selection:text-white pb-24">
+
+    <!-- شريط الإعلان العلوي -->
+    <div class="bg-olive-900 text-cream-100 text-xs py-2 px-8 justify-between items-center hidden sm:flex">
+        <span><i class="fa-solid fa-truck-fast text-accent-gold ml-1"></i> شحن مجاني لكافة الطلبات الأكثر من 500 جنيه!</span>
+        <button onclick="navigateTo('contact')" class="hover:text-accent-gold transition-colors">مساعدة وتواصل</button>
+    </div>
+
+    <!-- الهيدر والتنقل -->
+    <header class="sticky top-0 z-40 bg-cream-50/90 backdrop-blur-md border-b border-cream-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-olive-800 text-xl p-2" aria-label="القائمة"><i class="fa-solid fa-bars-staggered"></i></button>
+                    <a href="javascript:void(0)" onclick="navigateTo('home')" class="flex items-center gap-2">
+                        <span class="w-10 h-10 rounded-xl bg-olive-600 flex items-center justify-center text-cream-100 text-xl font-bold shadow-md">أ</span>
+                        <span class="text-2xl font-extrabold text-olive-800">أناقة<span class="text-accent-gold">.</span></span>
+                    </a>
+                </div>
+                <nav class="hidden md:flex space-x-8 space-x-reverse text-sm font-semibold text-olive-800">
+                    <button onclick="navigateTo('home')" class="nav-link text-olive-600 py-2 border-b-2 border-olive-600" data-page="home">الرئيسية</button>
+                    <button id="open-categories-drawer-btn" class="hover:text-olive-600 py-2 border-b-2 border-transparent flex items-center gap-1">الأقسام <i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+                    <button onclick="navigateTo('products')" class="nav-link hover:text-olive-600 py-2 border-b-2 border-transparent" data-page="products">كل المنتجات</button>
+                    <button onclick="navigateTo('about')" class="nav-link hover:text-olive-600 py-2 border-b-2 border-transparent" data-page="about">من نحن</button>
+                    <button onclick="navigateTo('contact')" class="nav-link hover:text-olive-600 py-2 border-b-2 border-transparent" data-page="contact">تواصل معنا</button>
+                </nav>
+                <div class="flex items-center gap-3">
+                    <div class="relative w-48 sm:w-64 lg:w-72">
+                        <input type="text" id="search-input" placeholder="ابحث: معطف، حذاء، كود المنتج..." class="w-full bg-cream-100 border border-cream-200 rounded-full py-2 pr-10 pl-4 text-xs focus:outline-none focus:ring-2 focus:ring-olive-600/40 text-olive-900 placeholder:text-olive-600/50">
+                        <button onclick="triggerSearch()" class="absolute right-3 top-2 text-olive-600/80 text-xs" aria-label="بحث"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                    <button class="relative p-2 text-olive-800 rounded-full hover:bg-cream-100 transition-colors" aria-label="المفضلة">
+                        <i class="fa-regular fa-heart text-xl"></i>
+                        <span id="wishlist-badge" class="absolute top-1 right-1 w-4 h-4 bg-accent-gold text-white text-[10px] font-bold rounded-full flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- قائمة الهاتف -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-cream-200 bg-cream-50 px-4 pt-2 pb-4 space-y-2 font-medium">
+            <button onclick="navigateTo('home'); toggleMobileMenu();" class="block w-full text-right py-2 px-3 rounded-lg hover:bg-cream-100">الرئيسية</button>
+            <button onclick="openCategoriesSidebar(); toggleMobileMenu();" class="block w-full text-right py-2 px-3 rounded-lg hover:bg-cream-100 text-olive-600 font-bold">الأقسام</button>
+            <button onclick="navigateTo('products'); toggleMobileMenu();" class="block w-full text-right py-2 px-3 rounded-lg hover:bg-cream-100">كل المنتجات</button>
+            <button onclick="navigateTo('about'); toggleMobileMenu();" class="block w-full text-right py-2 px-3 rounded-lg hover:bg-cream-100">من نحن</button>
+            <button onclick="navigateTo('contact'); toggleMobileMenu();" class="block w-full text-right py-2 px-3 rounded-lg hover:bg-cream-100">تواصل معنا</button>
+        </div>
+    </header>
+
+    <!-- قائمة الأقسام الجانبية -->
+    <div id="categories-drawer-overlay" class="fixed inset-0 bg-olive-900/40 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <aside id="categories-drawer" class="fixed top-0 right-0 h-full w-80 bg-cream-50 z-50 shadow-2xl translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-5 bg-olive-800 text-cream-100 flex items-center justify-between">
+            <h3 class="font-bold text-lg flex items-center gap-2"><i class="fa-solid fa-list-ul text-accent-gold"></i> أقسام المتجر</h3>
+            <button id="close-categories-btn" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center" aria-label="إغلاق"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-4 space-y-2 overflow-y-auto flex-1">
+            <button onclick="filterCategoryAndNavigate('all')" class="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-cream-100 transition-all font-bold text-olive-800"><span class="flex items-center gap-3"><i class="fa-solid fa-border-all text-olive-500"></i> كافة المنتجات</span><i class="fa-solid fa-chevron-left text-xs text-cream-300"></i></button>
+            <button onclick="filterCategoryAndNavigate('men')" class="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-cream-100 transition-all font-bold text-olive-800"><span class="flex items-center gap-3"><i class="fa-solid fa-mars text-olive-500"></i> الملابس الرجالية</span><i class="fa-solid fa-chevron-left text-xs text-cream-300"></i></button>
+            <button onclick="filterCategoryAndNavigate('women')" class="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-cream-100 transition-all font-bold text-olive-800"><span class="flex items-center gap-3"><i class="fa-solid fa-venus text-olive-500"></i> الملابس النسائية</span><i class="fa-solid fa-chevron-left text-xs text-cream-300"></i></button>
+            <button onclick="filterCategoryAndNavigate('jackets')" class="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-cream-100 transition-all font-bold text-olive-800"><span class="flex items-center gap-3"><i class="fa-solid fa-vest text-olive-500"></i> المعاطف والجاكيتات</span><i class="fa-solid fa-chevron-left text-xs text-cream-300"></i></button>
+            <button onclick="filterCategoryAndNavigate('shoes')" class="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-cream-100 transition-all font-bold text-olive-800"><span class="flex items-center gap-3"><i class="fa-solid fa-shoe-prints text-olive-500"></i> الأحذية</span><i class="fa-solid fa-chevron-left text-xs text-cream-300"></i></button>
+            <button onclick="filterCategoryAndNavigate('accessories')" class="w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-cream-100 transition-all font-bold text-olive-800"><span class="flex items-center gap-3"><i class="fa-solid fa-glasses text-olive-500"></i> الإكسسوارات</span><i class="fa-solid fa-chevron-left text-xs text-cream-300"></i></button>
+        </div>
+    </aside>
+
+    <main>
+        <!-- الرئيسية -->
+        <div id="page-home" class="page-view active">
+            <!-- السلايدر الرئيسي -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                <div class="relative overflow-hidden rounded-3xl shadow-lg bg-olive-900 h-[450px] sm:h-[480px]">
+                    <div id="slider-track" class="flex h-full slide-transition">
+                        <!-- الشريحة الأولى -->
+                        <div class="min-w-full h-full relative flex items-center">
+                            <img src="https://images.unsplash.com/photo-1539533018447-63fcce2678e3?q=80&w=1600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-60" alt="تشكيلة البيج والزيتي">
+                            <div class="absolute inset-0 bg-gradient-to-r from-olive-900/80 via-olive-900/40 to-transparent"></div>
+                            <div class="relative z-10 p-8 sm:p-16 max-w-xl">
+                                <span class="inline-block px-3 py-1 bg-accent-gold text-white text-xs font-bold rounded-full mb-4">أزياء دافئة 2026</span>
+                                <h1 class="text-3xl sm:text-5xl font-black text-cream-50 leading-tight mb-4">تناسق ألوان الأناقة والهدوء</h1>
+                                <p class="text-cream-100 text-sm mb-8 leading-relaxed">تشكيلة حصرية من الألوان الناعمة (بيج وزيتي) بأعلى جودة لخام الأقمشة.</p>
+                                <button onclick="navigateTo('products')" class="inline-flex items-center gap-2 bg-cream-50 text-olive-800 hover:bg-olive-600 hover:text-white px-6 py-3 rounded-full font-bold shadow-md transition-all">تصفح المنتجات الآن <i class="fa-solid fa-arrow-left text-xs"></i></button>
+                            </div>
+                        </div>
+                        <!-- الشريحة الثانية -->
+                        <div class="min-w-full h-full relative flex items-center">
+                            <img src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1600&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-60" alt="معاطف زيتي وبيج">
+                            <div class="absolute inset-0 bg-gradient-to-r from-olive-900/80 via-olive-900/40 to-transparent"></div>
+                            <div class="relative z-10 p-8 sm:p-16 max-w-xl">
+                                <span class="inline-block px-3 py-1 bg-olive-600 text-white text-xs font-bold rounded-full mb-4">سترات ومعاطف</span>
+                                <h1 class="text-3xl sm:text-5xl font-black text-cream-50 leading-tight mb-4">معاطف وجاكيتات عصرية</h1>
+                                <p class="text-cream-100 text-sm mb-8 leading-relaxed">تصاميم كلاسيكية مميزة باللون الزيتي والبيج المميز.</p>
+                                <button onclick="filterCategoryAndNavigate('jackets')" class="inline-flex items-center gap-2 bg-accent-gold text-white hover:bg-olive-600 px-6 py-3 rounded-full font-bold shadow-md transition-all">قسم المعاطف <i class="fa-solid fa-arrow-left text-xs"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="prev-slide" aria-label="السابق" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-olive-900 backdrop-blur-md flex items-center justify-center transition-all"><i class="fa-solid fa-chevron-right"></i></button>
+                    <button id="next-slide" aria-label="التالي" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white text-white hover:text-olive-900 backdrop-blur-md flex items-center justify-center transition-all"><i class="fa-solid fa-chevron-left"></i></button>
+                </div>
+            </section>
+
+            <!-- الأقسام الأكثر طلباً -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <h2 class="text-2xl font-black text-olive-800 mb-6">الأقسام الأكثر طلباً</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div onclick="filterCategoryAndNavigate('men')" class="relative h-44 rounded-2xl overflow-hidden cursor-pointer group shadow-sm border border-cream-200">
+                        <img src="https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="الرجالي">
+                        <div class="absolute inset-0 bg-gradient-to-t from-olive-900/80 via-olive-900/20 to-transparent flex items-end p-4">
+                            <span class="text-cream-50 font-bold text-base">الرجالي</span>
+                        </div>
+                    </div>
+                    <div onclick="filterCategoryAndNavigate('women')" class="relative h-44 rounded-2xl overflow-hidden cursor-pointer group shadow-sm border border-cream-200">
+                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="النسائي">
+                        <div class="absolute inset-0 bg-gradient-to-t from-olive-900/80 via-olive-900/20 to-transparent flex items-end p-4">
+                            <span class="text-cream-50 font-bold text-base">النسائي</span>
+                        </div>
+                    </div>
+                    <div onclick="filterCategoryAndNavigate('jackets')" class="relative h-44 rounded-2xl overflow-hidden cursor-pointer group shadow-sm border border-cream-200">
+                        <img src="https://images.unsplash.com/photo-1539533018447-63fcce2678e3?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="المعاطف والسترات">
+                        <div class="absolute inset-0 bg-gradient-to-t from-olive-900/80 via-olive-900/20 to-transparent flex items-end p-4">
+                            <span class="text-cream-50 font-bold text-base">المعاطف والسترات</span>
+                        </div>
+                    </div>
+                    <div onclick="filterCategoryAndNavigate('shoes')" class="relative h-44 rounded-2xl overflow-hidden cursor-pointer group shadow-sm border border-cream-200">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="الأحذية">
+                        <div class="absolute inset-0 bg-gradient-to-t from-olive-900/80 via-olive-900/20 to-transparent flex items-end p-4">
+                            <span class="text-cream-50 font-bold text-base">الأحذية</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- أحدث المنتجات -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div id="home-featured"></div>
+            </section>
+
+            <!-- نبذة عن المتجر -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 my-8 bg-cream-100 rounded-3xl border border-cream-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                    <div>
+                        <span class="text-olive-600 font-bold text-xs bg-cream-200 px-3 py-1 rounded-full">من نحن</span>
+                        <h2 class="text-3xl font-black text-olive-900 mt-3 mb-4 leading-relaxed">أناقة .. البساطة والجمال بتصاميم راقية</h2>
+                        <p class="text-olive-700 text-sm leading-relaxed mb-4">نؤمن في "أناقة" أن الألوان الدافئة مثل البيج والزيتي تمنحك إطلالة فريدة تجمع بين العصرية والهدوء.</p>
+                        <div class="grid grid-cols-3 gap-3 border-t border-cream-200 pt-4">
+                            <div><span class="block text-xl font-black text-olive-700">100%</span><span class="text-[10px] text-olive-600/80">قطن طبيعي</span></div>
+                            <div><span class="block text-xl font-black text-olive-700">+35k</span><span class="text-[10px] text-olive-600/80">طلب مكتمل</span></div>
+                            <div><span class="block text-xl font-black text-olive-700">سريع</span><span class="text-[10px] text-olive-600/80">توصيل للباب</span></div>
+                        </div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=800&auto=format&fit=crop" class="rounded-2xl shadow-sm w-full h-80 object-cover border border-cream-200" alt="عن المتجر">
+                </div>
+            </section>
+        </div>
+
+        <!-- المنتجات: سلايدر لكل قسم -->
+        <div id="page-products" class="page-view">
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="bg-cream-100 p-5 rounded-2xl border border-cream-200 mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h1 class="text-xl font-black text-olive-800" id="current-category-title">معرض الألوان والمنتجات العصرية</h1>
+                        <p class="text-xs text-olive-600/80 mt-0.5">اسحب أو استخدم الأسهم لتصفح كل قسم</p>
+                    </div>
+                    <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 no-scrollbar">
+                        <button data-cat="all" onclick="filterProductsPage('all', this)" class="prod-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-olive-600 text-white">كافة المنتجات</button>
+                        <button data-cat="men" onclick="filterProductsPage('men', this)" class="prod-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cream-200 text-olive-800">الملابس الرجالية</button>
+                        <button data-cat="women" onclick="filterProductsPage('women', this)" class="prod-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cream-200 text-olive-800">الملابس النسائية</button>
+                        <button data-cat="jackets" onclick="filterProductsPage('jackets', this)" class="prod-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cream-200 text-olive-800">المعاطف والجاكيتات</button>
+                        <button data-cat="shoes" onclick="filterProductsPage('shoes', this)" class="prod-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cream-200 text-olive-800">الأحذية</button>
+                        <button data-cat="accessories" onclick="filterProductsPage('accessories', this)" class="prod-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-cream-200 text-olive-800">الإكسسوارات</button>
+                    </div>
+                </div>
+                <div id="sections-container"></div>
+            </section>
+        </div>
+
+        <!-- من نحن -->
+        <div id="page-about" class="page-view">
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="bg-cream-100 p-8 sm:p-12 rounded-3xl border border-cream-200">
+                    <span class="text-olive-600 font-bold text-xs bg-cream-200 px-3 py-1 rounded-full">قصتنا</span>
+                    <h1 class="text-3xl font-black text-olive-900 mt-4 mb-6">من نحن - علامة أناقة للأزياء العصرية</h1>
+                    <p class="text-olive-700 text-sm leading-relaxed">نحن متجر مختلف بفكر جديد يعتمد على درجات الألوان الطبيعية الدافئة (كالبيج، الكريمي، والزيتي). نهدف لتزويدكم بتشكيلات فاخرة تناسب متطلبات يومكم وأسلوب حياتكم الأنيق.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- تواصل معنا -->
+        <div id="page-contact" class="page-view">
+            <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="bg-olive-800 text-cream-50 rounded-3xl p-8 sm:p-10 text-center mb-8">
+                    <h1 class="text-2xl font-black mb-2">تواصل معنا</h1>
+                    <p class="text-cream-200 text-xs mb-6">أسرع طريقة للرد على طلبك واستفسارك هي واتساب</p>
+                    <a id="whatsapp-main" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-3 bg-green-600 hover:bg-green-500 text-white font-bold px-8 py-4 rounded-full shadow-lg transition-all">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        <span dir="ltr" id="whatsapp-number" class="text-lg"></span>
+                    </a>
+                </div>
+                <h2 class="text-lg font-black text-olive-800 mb-4">كل طرق التواصل</h2>
+                <div id="contact-links" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="bg-cream-100 border-t border-cream-200 pt-10 pb-6 text-olive-700 text-xs mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="space-y-2">
+                    <span class="text-xl font-black text-olive-800">أناقة<span class="text-accent-gold">.</span></span>
+                    <p class="text-olive-600/80 text-[11px]">أزياء عصرية بتصاميم وألوان دافئة مريحة.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-olive-800 mb-2">روابط سريعة</h4>
+                    <ul class="space-y-1.5 text-[11px]">
+                        <li><button onclick="navigateTo('home')">الرئيسية</button></li>
+                        <li><button onclick="navigateTo('products')">كل المنتجات</button></li>
+                        <li><button onclick="navigateTo('about')">من نحن</button></li>
+                        <li><button onclick="navigateTo('contact')">تواصل معنا</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-olive-800 mb-2">الأقسام الرئيسية</h4>
+                    <ul class="space-y-1.5 text-[11px]">
+                        <li><button onclick="filterCategoryAndNavigate('jackets')">معاطف وجاكيتات</button></li>
+                        <li><button onclick="filterCategoryAndNavigate('men')">رجالي</button></li>
+                        <li><button onclick="filterCategoryAndNavigate('women')">نسائي</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-olive-800 mb-2">تابعنا</h4>
+                    <div id="footer-social" class="flex gap-3 text-xl text-olive-600"></div>
+                </div>
+            </div>
+            <div class="border-t border-cream-200 pt-4 text-center text-[10px] text-olive-600/60">© 2026 جميع الحقوق محفوظة لمتجر أناقة.</div>
+        </div>
+    </footer>
+
+    <!-- زر السلة الفلوتينج -->
+    <div class="fixed bottom-4 inset-x-4 sm:inset-x-auto sm:left-6 sm:bottom-6 z-40">
+        <button id="open-cart-floating-btn" class="w-full sm:w-auto bg-olive-800 hover:bg-olive-900 text-cream-50 px-5 py-3 rounded-full shadow-2xl flex items-center justify-between sm:justify-start gap-4 border border-olive-700 transition-all">
+            <div class="flex items-center gap-2.5">
+                <div class="relative">
+                    <i class="fa-solid fa-bag-shopping text-lg text-accent-gold"></i>
+                    <span id="floating-cart-badge" class="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                </div>
+                <span class="font-bold text-xs">سلة التسوق</span>
+            </div>
+            <div class="flex items-center gap-2 border-r border-olive-700 pr-3">
+                <span id="floating-cart-total" class="font-black text-accent-gold text-xs">0 ج.م</span>
+                <i class="fa-solid fa-chevron-up text-[10px] text-cream-200"></i>
+            </div>
+        </button>
+    </div>
+
+    <!-- السلة الجانبية -->
+    <div id="cart-drawer-overlay" class="fixed inset-0 bg-olive-900/40 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <aside id="cart-drawer" class="fixed top-0 left-0 h-full w-full sm:w-[380px] bg-cream-50 z-50 shadow-2xl -translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 bg-olive-800 text-cream-50 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-accent-gold text-lg"></i>
+                <h3 class="font-bold text-base">محتويات السلة</h3>
+                <span id="cart-count-title" class="text-[10px] bg-olive-700 font-bold px-2 py-0.5 rounded-full">0 منتج</span>
+            </div>
+            <button id="close-cart-btn" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center" aria-label="إغلاق"><i class="fa-solid fa-xmark text-xs"></i></button>
+        </div>
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+        <div class="p-4 border-t border-cream-200 bg-cream-100 space-y-3">
+            <div class="flex justify-between text-sm font-black text-olive-900">
+                <span>المجموع الكلي</span>
+                <span id="cart-total" class="text-olive-700 text-base">0 ج.م</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-olive-600 hover:bg-olive-700 text-white font-bold py-3 rounded-xl shadow-md text-xs transition-colors">إتمام الطلب عبر واتساب</button>
+        </div>
+    </aside>
+
+    <!-- الإشعارات السريعة (Toast) -->
+    <div id="toast-container" class="fixed bottom-20 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+    // بيانات التواصل
+    const STORE = {
+      whatsapp: '201012345678',
+      whatsappDisplay: '+20 101 234 5678',
+      phone: '+201012345678',
+      email: 'hello@anaqah.store',
+      messenger: 'https://m.me/anaqah.store',
+      tiktok: 'https://www.tiktok.com/@anaqah.store',
+      instagram: 'https://www.instagram.com/anaqah.store',
+      facebook: 'https://www.facebook.com/anaqah.store'
+    };
+
+    const CATEGORIES = {
+      jackets:     { label: 'المعاطف والجاكيتات', icon: 'fa-vest' },
+      men:         { label: 'الملابس الرجالية',   icon: 'fa-mars' },
+      women:       { label: 'الملابس النسائية',   icon: 'fa-venus' },
+      shoes:       { label: 'الأحذية',            icon: 'fa-shoe-prints' },
+      accessories: { label: 'الإكسسوارات',        icon: 'fa-glasses' }
+    };
+
+    // خريطة الصور الحقيقية لكل منتج بناءً على الكود الخاص به
+    const PRODUCT_IMAGES = {
+      // المعاطف والجاكيتات
+      'COAT-OLIVE-WINTER': 'https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=600&auto=format&fit=crop',
+      'BOMBER-OLIVE-WATERPROOF': 'https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=600&auto=format&fit=crop',
+      'TRENCH-BEIGE-CLASSIC': 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?q=80&w=600&auto=format&fit=crop',
+      'COAT-BEIGE-LONG': 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=600&auto=format&fit=crop',
+      'JACKET-OLIVE-FIELD': 'https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=600&auto=format&fit=crop',
+      'PUFFER-CREAM-LIGHT': 'https://images.unsplash.com/photo-1548883354-7622d03aca27?q=80&w=600&auto=format&fit=crop',
+      'BLAZER-BEIGE-LINEN': 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=600&auto=format&fit=crop',
+      'CAPE-OLIVE-WOOL': 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?q=80&w=600&auto=format&fit=crop',
+
+      // الملابس الرجالية
+      'SHIRT-BEIGE-LINEN': 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?q=80&w=600&auto=format&fit=crop',
+      'HOODIE-OLIVE-COTTON': 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=600&auto=format&fit=crop',
+      'POLO-CREAM-PIQUE': 'https://images.unsplash.com/photo-1617137968427-85924c800a22?q=80&w=600&auto=format&fit=crop',
+      'PANTS-OLIVE-CARGO': 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?q=80&w=600&auto=format&fit=crop',
+      'SWEATER-BEIGE-KNIT': 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=600&auto=format&fit=crop',
+      'SHIRT-OLIVE-OXFORD': 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=600&auto=format&fit=crop',
+      'CHINO-BEIGE-SLIM': 'https://images.unsplash.com/photo-1479064555552-3ef4979f8908?q=80&w=600&auto=format&fit=crop',
+      'TSHIRT-CREAM-BASIC': 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop',
+
+      // الملابس النسائية
+      'CARDIGAN-BEIGE-BUTTON': 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=600&auto=format&fit=crop',
+      'DRESS-CREAM-ELEGANT': 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&auto=format&fit=crop',
+      'PANTS-BEIGE-WIDE': 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=600&auto=format&fit=crop',
+      'ABAYA-OLIVE-CASUAL': 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=600&auto=format&fit=crop',
+      'BLOUSE-CREAM-SATIN': 'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?q=80&w=600&auto=format&fit=crop',
+      'SKIRT-OLIVE-PLEATED': 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=600&auto=format&fit=crop',
+      'SET-BEIGE-KNIT': 'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?q=80&w=600&auto=format&fit=crop',
+      'SCARF-CREAM-SILK': 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=600&auto=format&fit=crop',
+
+      // الأحذية
+      'SNEAKER-BEIGE-LEATHER': 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600&auto=format&fit=crop',
+      'SHOE-OLIVE-CLASSIC': 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=600&auto=format&fit=crop',
+      'BOOT-BEIGE-SUEDE': 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=600&auto=format&fit=crop',
+      'LOAFER-OLIVE-LEATHER': 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?q=80&w=600&auto=format&fit=crop',
+      'SNEAKER-CREAM-CANVAS': 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=600&auto=format&fit=crop',
+      'SANDAL-BEIGE-FLAT': 'https://images.unsplash.com/photo-1603808033192-082d6919d3e1?q=80&w=600&auto=format&fit=crop',
+
+      // الإكسسوارات
+      'BAG-OLIVE-LEATHER': 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600&auto=format&fit=crop',
+      'SUNGLASS-BEIGE-FRAME': 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=600&auto=format&fit=crop',
+      'BELT-OLIVE-LEATHER': 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=600&auto=format&fit=crop',
+      'WATCH-BEIGE-MINIMAL': 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600&auto=format&fit=crop',
+      'WALLET-CREAM-LEATHER': 'https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=600&auto=format&fit=crop',
+      'CAP-OLIVE-COTTON': 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=600&auto=format&fit=crop'
+    };
+
+    // قائمة البيانات الخاصة بالمنتجات
+    const RAW = {
+      jackets: [
+        ['COAT-OLIVE-WINTER','معطف زيتي شتوي فاخر',1250,1500,'معطف'],
+        ['BOMBER-OLIVE-WATERPROOF','جاكيت بومبر زيتي مقاوم للماء',1100,1300,'الأكثر طلباً'],
+        ['TRENCH-BEIGE-CLASSIC','معطف ترينش كلاسيك بيج',1650,1950,'معطف'],
+        ['COAT-BEIGE-LONG','معطف بيج طويل صوف',1800,2100,'جديد'],
+        ['JACKET-OLIVE-FIELD','جاكيت ميداني زيتي بجيوب',1350,null,null],
+        ['PUFFER-CREAM-LIGHT','جاكيت منفوخ كريمي خفيف',1150,1400,'دافئ'],
+        ['BLAZER-BEIGE-LINEN','بليزر كتان بيج',980,1200,null],
+        ['CAPE-OLIVE-WOOL','كاب صوف زيتي',1450,null,'فخم']
+      ],
+      men: [
+        ['SHIRT-BEIGE-LINEN','قميص كتان بيج كاجوال',490,null,'جديد'],
+        ['HOODIE-OLIVE-COTTON','سويت شيرت زيتي بقلنسوة',540,650,null],
+        ['POLO-CREAM-PIQUE','تيشيرت بولو كريمي',380,450,null],
+        ['PANTS-OLIVE-CARGO','بنطال كارجو زيتي',620,720,'الأكثر طلباً'],
+        ['SWEATER-BEIGE-KNIT','سويتر بيج تريكو',690,null,null],
+        ['SHIRT-OLIVE-OXFORD','قميص أوكسفورد زيتي',520,600,null],
+        ['CHINO-BEIGE-SLIM','بنطال شينو بيج سليم',560,null,'جديد'],
+        ['TSHIRT-CREAM-BASIC','تيشيرت كريمي أساسي',250,300,null]
+      ],
+      women: [
+        ['CARDIGAN-BEIGE-BUTTON','كارديجان بيج دافئ بأزرار',780,900,'بيج مودرن'],
+        ['DRESS-CREAM-ELEGANT','فستان نسائي كريمي أنيق',920,1100,'أناقة'],
+        ['PANTS-BEIGE-WIDE','بنطال كاجوال بيج واسع',460,550,null],
+        ['ABAYA-OLIVE-CASUAL','عباية زيتي كاجوال',1050,1250,'جديد'],
+        ['BLOUSE-CREAM-SATIN','بلوزة ساتان كريمي',430,null,null],
+        ['SKIRT-OLIVE-PLEATED','تنورة زيتي بليسيه',510,600,null],
+        ['SET-BEIGE-KNIT','طقم تريكو بيج',890,1000,'دافئ'],
+        ['SCARF-CREAM-SILK','إيشارب حرير كريمي',280,null,null]
+      ],
+      shoes: [
+        ['SNEAKER-BEIGE-LEATHER','حذاء رياضي جلد بيج',850,null,'مريح'],
+        ['SHOE-OLIVE-CLASSIC','حذاء كلاسيكي زيتي داكن',990,1200,'فخم'],
+        ['BOOT-BEIGE-SUEDE','بوت شامواه بيج',1250,1450,null],
+        ['LOAFER-OLIVE-LEATHER','لوفر جلد زيتي',880,null,'جديد'],
+        ['SNEAKER-CREAM-CANVAS','حذاء كانفاس كريمي',540,650,null],
+        ['SANDAL-BEIGE-FLAT','صندل بيج مسطح',420,null,null]
+      ],
+      accessories: [
+        ['BAG-OLIVE-LEATHER','حقيبة يد جلدية لون زيتي',630,750,'إكسسوار'],
+        ['SUNGLASS-BEIGE-FRAME','نظارة شمسية بإطار بيج',320,null,null],
+        ['BELT-OLIVE-LEATHER','حزام جلد زيتي',260,310,null],
+        ['WATCH-BEIGE-MINIMAL','ساعة بيج مينيمال',1150,1400,'جديد'],
+        ['WALLET-CREAM-LEATHER','محفظة جلد كريمي',340,null,null],
+        ['CAP-OLIVE-COTTON','كاب قطن زيتي',190,230,null]
+      ]
+    };
+
+    const productsData = Object.entries(RAW).flatMap(([cat, list]) =>
+      list.map(([code, name, price, oldPrice, badge], i) => ({
+        code, name, category: cat, price, oldPrice, badge,
+        badgeColor: i % 2 ? 'bg-accent-gold' : 'bg-olive-600',
+        rating: (4.5 + ((i * 7) % 6) / 10).toFixed(1),
+        image: PRODUCT_IMAGES[code] || 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?q=80&w=600&auto=format&fit=crop'
+      }))
+    );
+
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem('anaqah_cart')) || []; } catch (e) {}
+    let wishlistCount = 0;
+
+    /* ---------- التنقل ---------- */
+    function navigateTo(pageId) {
+      document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page-${pageId}`)?.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.querySelectorAll('.nav-link').forEach(l => {
+        const on = l.dataset.page === pageId;
+        l.classList.toggle('text-olive-600', on);
+        l.classList.toggle('border-olive-600', on);
+        l.classList.toggle('border-transparent', !on);
+      });
+    }
+
+    function filterCategoryAndNavigate(cat) {
+      closeCategoriesSidebar();
+      navigateTo('products');
+      document.querySelectorAll('.prod-filter-btn').forEach(b => setPill(b, b.dataset.cat === cat));
+      showCategory(cat);
+    }
+
+    function filterProductsPage(cat, btn) {
+      document.querySelectorAll('.prod-filter-btn').forEach(b => setPill(b, b === btn));
+      showCategory(cat);
+    }
+
+    function setPill(b, on) {
+      b.classList.toggle('bg-olive-600', on);
+      b.classList.toggle('text-white', on);
+      b.classList.toggle('bg-cream-200', !on);
+      b.classList.toggle('text-olive-800', !on);
+    }
+
+    function showCategory(cat) {
+      document.getElementById('current-category-title').textContent =
+        cat === 'all' ? 'معرض الألوان والمنتجات العصرية' : `قسم ${CATEGORIES[cat].label}`;
+      renderSections(cat === 'all' ? productsData : productsData.filter(p => p.category === cat));
+    }
+
+    function triggerSearch() {
+      const term = document.getElementById('search-input').value.toLowerCase().trim();
+      navigateTo('products');
+      const items = productsData.filter(p =>
+        p.name.includes(term) || p.code.toLowerCase().includes(term) || CATEGORIES[p.category].label.includes(term));
+      document.getElementById('current-category-title').textContent =
+        term ? `نتائج البحث عن: "${term}"` : 'معرض الألوان والمنتجات العصرية';
+      renderSections(items);
+    }
+
+    /* ---------- كارت المنتج والسلايدر ---------- */
+    function cardHTML(p) {
+      const badge = p.badge ? `<span class="absolute top-2 right-2 z-10 ${p.badgeColor} text-white text-[9px] font-bold px-2 py-0.5 rounded-md">${p.badge}</span>` : '';
+      const old = p.oldPrice ? `<span class="text-[10px] text-gray-400 line-through mr-1">${p.oldPrice}</span>` : '';
+      return `
+      <div class="group bg-white rounded-xl overflow-hidden border border-cream-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between w-44 sm:w-52 flex-shrink-0">
+        <div class="relative overflow-hidden aspect-[4/5] bg-cream-100">
+          ${badge}
+          <button onclick="toggleWishlist(this)" class="absolute top-2 left-2 z-10 w-6 h-6 bg-white/80 rounded-full flex items-center justify-center text-olive-700 hover:text-red-500 text-xs transition-colors"><i class="fa-regular fa-heart"></i></button>
+          <img src="${p.image}" alt="${p.name}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          <div class="absolute inset-x-0 bottom-0 p-1.5 bg-gradient-to-t from-olive-900/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="addToCart('${p.code}')" class="w-full bg-white text-olive-900 font-bold py-1.5 rounded-lg text-[10px] flex items-center justify-center gap-1 hover:bg-olive-600 hover:text-white transition-colors"><i class="fa-solid fa-cart-plus"></i> إضافة للسلة</button>
+          </div>
+        </div>
+        <div class="p-2.5 bg-white">
+          <div class="flex items-center justify-between text-[10px] mb-0.5">
+            <span class="flex items-center gap-1 text-amber-500"><i class="fa-solid fa-star"></i><b class="text-olive-800">${p.rating}</b></span>
+            <span dir="ltr" class="text-olive-600/60 font-mono text-[9px] truncate max-w-[90px]">${p.code}</span>
+          </div>
+          <h4 class="font-bold text-olive-900 text-xs line-clamp-1">${p.name}</h4>
+          <div class="flex items-center justify-between mt-2 pt-1 border-t border-cream-100">
+            <div><span class="text-xs font-black text-olive-900">${p.price} <span class="text-[9px] font-normal">ج.م</span></span>${old}</div>
+            <button onclick="addToCart('${p.code}')" class="w-6 h-6 bg-cream-100 text-olive-800 rounded-md flex items-center justify-center hover:bg-olive-600 hover:text-white transition-colors"><i class="fa-solid fa-plus text-[10px]"></i></button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function sliderHTML(title, icon, items) {
+      return `
+      <div class="slider-box mb-8 bg-white p-5 rounded-3xl border border-cream-200 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-olive-800 flex items-center gap-2"><i class="fa-solid ${icon} text-accent-gold"></i> ${title}
+            <span class="text-[10px] font-bold bg-cream-100 text-olive-600 px-2 py-0.5 rounded-full">${items.length}</span></h2>
+          <div class="flex gap-2">
+            <button data-slide="1" aria-label="السابق" class="w-8 h-8 rounded-full bg-cream-100 hover:bg-olive-600 hover:text-white text-olive-800 flex items-center justify-center transition-colors"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            <button data-slide="-1" aria-label="التالي" class="w-8 h-8 rounded-full bg-cream-100 hover:bg-olive-600 hover:text-white text-olive-800 flex items-center justify-center transition-colors"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+          </div>
+        </div>
+        <div class="slider-track flex gap-4 overflow-x-auto no-scrollbar py-2">${items.map(cardHTML).join('')}</div>
+      </div>`;
+    }
+
+    function renderSections(items) {
+      const box = document.getElementById('sections-container');
+      if (!items.length) { box.innerHTML = '<p class="py-10 text-center text-olive-600 font-bold text-sm">لم يتم العثور على أي منتج يطابق بحثك</p>'; return; }
+      box.innerHTML = Object.entries(CATEGORIES)
+        .map(([key, c]) => ({ c, list: items.filter(p => p.category === key) }))
+        .filter(s => s.list.length)
+        .map(s => sliderHTML(s.c.label, s.c.icon, s.list)).join('');
+    }
+
+    document.addEventListener('click', e => {
+      const b = e.target.closest('[data-slide]');
+      if (b) b.closest('.slider-box').querySelector('.slider-track')
+        .scrollBy({ left: b.dataset.slide * 320, behavior: 'smooth' });
+    });
+
+    /* ---------- السلة ---------- */
+    function addToCart(code) {
+      const p = productsData.find(x => x.code === code);
+      if (!p) return;
+      const item = cart.find(i => i.code === code);
+      item ? item.quantity++ : cart.push({ ...p, quantity: 1 });
+      saveCart(); updateCartUI();
+      showToast(`تم إضافة "${p.name}" إلى السلة!`);
+    }
+
+    function updateQuantity(code, delta) {
+      const i = cart.findIndex(x => x.code === code);
+      if (i > -1) { cart[i].quantity += delta; if (cart[i].quantity <= 0) cart.splice(i, 1); }
+      saveCart(); updateCartUI();
+    }
+
+    function saveCart() { try { localStorage.setItem('anaqah_cart', JSON.stringify(cart)); } catch (e) {} }
+
+    function updateCartUI() {
+      const count = cart.reduce((s, i) => s + i.quantity, 0);
+      const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+      document.getElementById('floating-cart-badge').textContent = count;
+      document.getElementById('floating-cart-total').textContent = `${total} ج.م`;
+      document.getElementById('cart-count-title').textContent = `${count} منتجات`;
+      document.getElementById('cart-total').textContent = `${total} ج.م`;
+      document.getElementById('cart-items-container').innerHTML = cart.length ? cart.map(i => `
+        <div class="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-cream-200 shadow-sm">
+          <img src="${i.image}" alt="${i.name}" class="w-12 h-14 object-cover rounded-lg bg-cream-100">
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-olive-900 text-xs truncate">${i.name}</h4>
+            <p class="text-olive-700 font-black text-xs mt-0.5">${i.price} ج.م</p>
+            <div class="flex items-center bg-cream-100 border border-cream-200 rounded-md w-fit mt-1">
+              <button onclick="updateQuantity('${i.code}',-1)" class="w-5 h-5 text-xs font-bold">-</button>
+              <span class="w-4 text-center text-[10px] font-bold">${i.quantity}</span>
+              <button onclick="updateQuantity('${i.code}',1)" class="w-5 h-5 text-xs font-bold">+</button>
+            </div>
+          </div>
+          <button onclick="updateQuantity('${i.code}',-${i.quantity})" class="text-gray-400 hover:text-red-500 p-1"><i class="fa-regular fa-trash-can text-xs"></i></button>
+        </div>`).join('') : `
+        <div class="h-full flex flex-col items-center justify-center text-center p-6 text-olive-600/50">
+          <i class="fa-solid fa-basket-shopping text-4xl mb-2"></i><p class="font-bold text-xs">السلة فارغة حالياً</p></div>`;
+    }
+
+    function setCart(open) {
+      document.getElementById('cart-drawer').classList.toggle('-translate-x-full', !open);
+      document.getElementById('cart-drawer-overlay').classList.toggle('opacity-0', !open);
+      document.getElementById('cart-drawer-overlay').classList.toggle('pointer-events-none', !open);
+    }
+
+    function checkout() {
+      if (!cart.length) return showToast('السلة فارغة حالياً!');
+      const lines = cart.map(i => `• ${i.name} (${i.code}) × ${i.quantity} = ${i.price * i.quantity} ج.م`).join('\n');
+      const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+      window.open(`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(`طلب جديد من أناقة:\n${lines}\nالإجمالي: ${total} ج.م`)}`, '_blank');
+      cart = []; saveCart(); updateCartUI(); setCart(false);
+      showToast('شكراً لك! تم تجهيز طلبك على واتساب');
+    }
+
+    /* ---------- القوائم الجانبية ---------- */
+    function openCategoriesSidebar() {
+      document.getElementById('categories-drawer').classList.remove('translate-x-full');
+      document.getElementById('categories-drawer-overlay').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeCategoriesSidebar() {
+      document.getElementById('categories-drawer').classList.add('translate-x-full');
+      document.getElementById('categories-drawer-overlay').classList.add('opacity-0', 'pointer-events-none');
+    }
+    function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('hidden'); }
+
+    /* ---------- صفحة التواصل ---------- */
+    function renderContact() {
+      const links = [
+        { icon: 'fa-brands fa-whatsapp', label: 'واتساب', value: STORE.whatsappDisplay, href: `https://wa.me/${STORE.whatsapp}`, color: 'bg-green-600' },
+        { icon: 'fa-solid fa-phone', label: 'اتصال مباشر', value: STORE.whatsappDisplay, href: `tel:${STORE.phone}`, color: 'bg-olive-600' },
+        { icon: 'fa-solid fa-envelope', label: 'البريد الإلكتروني', value: STORE.email, href: `mailto:${STORE.email}`, color: 'bg-accent-gold' },
+        { icon: 'fa-brands fa-facebook-messenger', label: 'ماسنجر', value: 'راسلنا على ماسنجر', href: STORE.messenger, color: 'bg-blue-600' },
+        { icon: 'fa-brands fa-tiktok', label: 'تيك توك', value: '@anaqah.store', href: STORE.tiktok, color: 'bg-black' },
+        { icon: 'fa-brands fa-instagram', label: 'إنستجرام', value: '@anaqah.store', href: STORE.instagram, color: 'bg-pink-600' },
+        { icon: 'fa-brands fa-facebook', label: 'فيسبوك', value: 'صفحة أناقة', href: STORE.facebook, color: 'bg-blue-700' }
+      ];
+      document.getElementById('contact-links').innerHTML = links.map(l => `
+        <a href="${l.href}" target="_blank" rel="noopener" class="flex items-center gap-4 bg-white p-4 rounded-2xl border border-cream-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+          <span class="w-12 h-12 ${l.color} text-white rounded-xl flex items-center justify-center text-xl flex-shrink-0"><i class="${l.icon}"></i></span>
+          <span class="min-w-0"><b class="block text-sm text-olive-900">${l.label}</b><span dir="ltr" class="block text-xs text-olive-600 truncate">${l.value}</span></span>
+        </a>`).join('');
+      document.getElementById('whatsapp-main').href = `https://wa.me/${STORE.whatsapp}`;
+      document.getElementById('whatsapp-number').textContent = STORE.whatsappDisplay;
+      document.getElementById('footer-social').innerHTML = links.filter(l => l.label !== 'اتصال مباشر')
+        .map(l => `<a href="${l.href}" target="_blank" rel="noopener" aria-label="${l.label}" class="hover:text-olive-800 transition-colors"><i class="${l.icon}"></i></a>`).join('');
+    }
+
+    /* ---------- المفضلة والإشعارات ---------- */
+    function toggleWishlist(btn){
+      const on = btn.dataset.on !== '1';
+      btn.dataset.on = on ? '1' : '0';
+      btn.innerHTML = `<i class="${on ? 'fa-solid text-red-500' : 'fa-regular'} fa-heart"></i>`;
+      wishlistCount = Math.max(0, wishlistCount + (on ? 1 : -1));
+      document.getElementById('wishlist-badge').textContent = wishlistCount;
+      showToast(on ? 'تم الحفظ للمفضلة' : 'تمت الإزالة من المفضلة');
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast-enter bg-olive-900 text-cream-50 px-4 py-2 rounded-xl shadow-xl text-xs font-bold flex items-center gap-2 border border-olive-700';
+      t.innerHTML = `<i class="fa-solid fa-circle-check text-accent-gold"></i><span>${msg}</span>`;
+      document.getElementById('toast-container').appendChild(t);
+      setTimeout(() => { t.classList.replace('toast-enter', 'toast-exit'); setTimeout(() => t.remove(), 300); }, 2500);
+    }
+
+    function initHeroSlider() {
+      const track = document.getElementById('slider-track');
+      let i = 0;
+      const go = d => { i = (i + d + 2) % 2; track.style.transform = `translateX(${i * 100}%)`; };
+      document.getElementById('next-slide').addEventListener('click', () => go(1));
+      document.getElementById('prev-slide').addEventListener('click', () => go(-1));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('home-featured').innerHTML =
+        sliderHTML('أحدث المنتجات', 'fa-star', productsData.filter((_, i) => i % 4 === 0).slice(0, 10));
+      showCategory('all');
+      updateCartUI();
+      renderContact();
+      initHeroSlider();
+
+      document.getElementById('open-cart-floating-btn').addEventListener('click', () => setCart(true));
+      document.getElementById('close-cart-btn').addEventListener('click', () => setCart(false));
+      document.getElementById('cart-drawer-overlay').addEventListener('click', () => setCart(false));
+      document.getElementById('open-categories-drawer-btn').addEventListener('click', openCategoriesSidebar);
+      document.getElementById('close-categories-btn').addEventListener('click', closeCategoriesSidebar);
+      document.getElementById('categories-drawer-overlay').addEventListener('click', closeCategoriesSidebar);
+
+      const s = document.getElementById('search-input');
+      s.addEventListener('input', triggerSearch);
+    });
+    </script>
+</body>
+</html>
